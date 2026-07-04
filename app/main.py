@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -87,6 +87,19 @@ def create_app(bible: Bible | None = None) -> FastAPI:
             "chapter": ref.chapter,
             "verse": ref.verse,
         }
+
+    @app.websocket("/ws")
+    async def websocket_endpoint(ws: WebSocket) -> None:
+        role = ws.query_params.get("role", "panel")
+        await ws.accept()
+        manager.add(ws, role)
+        await push_state()
+        try:
+            while True:
+                await ws.receive_text()
+        except WebSocketDisconnect:
+            manager.remove(ws)
+            await push_state()
 
     @app.get("/")
     def panel_page() -> FileResponse:
