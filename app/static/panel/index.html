@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel — Biblia RVR1960</title>
+<link rel="stylesheet" href="/static/panel/panel.css">
+</head>
+<body>
+<header>
+  <h1>Biblia RVR1960 · OBS</h1>
+  <span id="conn-dot" class="dot off" title="Overlay desconectado"></span>
+</header>
+<main>
+  <form id="search-form" autocomplete="off">
+    <input id="search-input" type="text" placeholder="Buscar: jn 3 16 · 1co 13:4 · salmos 23" aria-label="Buscar referencia">
+    <button type="submit">Ir</button>
+  </form>
+  <p id="search-error" class="error hidden">No encontrado</p>
+
+  <div id="pickers">
+    <select id="book-select" aria-label="Libro"></select>
+    <select id="chapter-select" aria-label="Capítulo"></select>
+    <select id="verse-select" aria-label="Versículo"></select>
+    <button id="set-btn">Ir al versículo</button>
+  </div>
+
+  <section id="preview">
+    <p id="preview-status">Oculto</p>
+    <p id="preview-text"></p>
+    <p id="preview-ref"></p>
+  </section>
+
+  <div id="controls">
+    <button id="prev-btn">← Anterior</button>
+    <button id="toggle-btn">Mostrar</button>
+    <button id="next-btn">Siguiente →</button>
+  </div>
+</main>
+<script src="/static/panel/panel.js"></script>
+</body>
+</html>

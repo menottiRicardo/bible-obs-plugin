@@ -1,0 +1,108 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: #10141c;
+  color: #f2f4f8;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background: #171d29;
+}
+
+header h1 { margin: 0; font-size: 1.1rem; }
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.on { background: #2ecc71; }
+.dot.off { background: #e74c3c; }
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+#search-form { display: flex; gap: 0.5rem; }
+
+#search-input {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #39445a;
+  background: #1c2333;
+  color: inherit;
+}
+
+button {
+  font-size: 1.05rem;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #2d6cdf;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button:active { background: #1e4fa8; }
+
+.error { color: #ff7675; margin: 0; }
+.hidden { display: none; }
+
+#pickers { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+#pickers select {
+  flex: 1;
+  min-width: 30%;
+  font-size: 1.05rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #39445a;
+  background: #1c2333;
+  color: inherit;
+}
+
+#pickers button { width: 100%; }
+
+#preview {
+  background: #171d29;
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  min-height: 6.5rem;
+}
+
+#preview.live { outline: 2px solid #2ecc71; }
+
+#preview-status {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fa1bf;
+}
+
+#preview.live #preview-status { color: #2ecc71; }
+
+#preview-text { margin: 0; font-size: 1.1rem; line-height: 1.4; }
+
+#preview-ref { margin: 0.4rem 0 0; color: #ffd166; font-weight: 600; }
+
+#controls { display: flex; gap: 0.5rem; }
+
+#controls button { flex: 1; padding: 1rem 0.5rem; }
+
+#toggle-btn { background: #27ae60; }
+#toggle-btn.showing { background: #c0392b; }
