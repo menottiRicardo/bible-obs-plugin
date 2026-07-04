@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from pathlib import Path
 
-from app.books import BY_ID
+from app.books import BOOKS, BY_ID
 
 
 class BibleDataError(Exception):
@@ -71,3 +73,44 @@ class Bible:
             }
             for book_id, chapters in self._books.items()
         ]
+
+    @classmethod
+    def load(cls, path: Path) -> "Bible":
+        try:
+            raw = json.loads(Path(path).read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            raise BibleDataError(
+                f"Falta {path} — ejecuta: uv run fetch-bible"
+            ) from None
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            raise BibleDataError(f"{path} inválido: {exc}") from exc
+
+        books = raw.get("books") if isinstance(raw, dict) else None
+        if not isinstance(books, list) or len(books) != 66:
+            raise BibleDataError(f"{path} inválido: se esperaban 66 libros")
+
+        chapters_by_book: dict[int, list[list[str]]] = {}
+        for entry in books:
+            book_id = entry.get("id")
+            meta = BY_ID.get(book_id)
+            if meta is None or book_id in chapters_by_book:
+                raise BibleDataError(f"{path} inválido: id de libro inesperado {book_id!r}")
+            chapters = entry.get("chapters")
+            if not isinstance(chapters, list) or len(chapters) != meta.chapter_count:
+                raise BibleDataError(
+                    f"{path} inválido: {meta.name} debería tener "
+                    f"{meta.chapter_count} capítulos"
+                )
+            for ch_index, verses in enumerate(chapters, start=1):
+                if not isinstance(verses, list) or not verses:
+                    raise BibleDataError(
+                        f"{path} inválido: {meta.name} {ch_index} sin versículos"
+                    )
+                for v_index, text in enumerate(verses, start=1):
+                    if not isinstance(text, str) or not text.strip():
+                        raise BibleDataError(
+                            f"{path} inválido: versículo vacío en "
+                            f"{meta.name} {ch_index}:{v_index}"
+                        )
+            chapters_by_book[book_id] = chapters
+        return cls(chapters_by_book)
