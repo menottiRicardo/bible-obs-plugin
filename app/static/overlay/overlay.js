@@ -6,6 +6,9 @@
   let pending = null;
   let retryMs = 1000;
 
+  const TOKEN = new URLSearchParams(location.search).get("token");
+  const WS_PROTO = location.protocol === "https:" ? "wss:" : "ws:";
+
   function apply(msg) {
     textEl.textContent = msg.text;
     refEl.textContent = `${msg.book_name} ${msg.chapter}:${msg.verse} (RVR1960)`;
@@ -45,7 +48,9 @@
   }
 
   function connect() {
-    const ws = new WebSocket(`ws://${location.host}/ws?role=overlay`);
+    let url = `${WS_PROTO}//${location.host}/ws?role=overlay`;
+    if (TOKEN) url += `&token=${encodeURIComponent(TOKEN)}`;
+    const ws = new WebSocket(url);
     ws.onopen = () => { retryMs = 1000; };
     ws.onmessage = (ev) => render(JSON.parse(ev.data));
     ws.onclose = () => {

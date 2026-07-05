@@ -1,10 +1,18 @@
 const $ = (id) => document.getElementById(id);
 
+const TOKEN = new URLSearchParams(location.search).get("token");
+const WS_PROTO = location.protocol === "https:" ? "wss:" : "ws:";
+
+function withToken(url) {
+  if (!TOKEN) return url;
+  return url + (url.includes("?") ? "&" : "?") + "token=" + encodeURIComponent(TOKEN);
+}
+
 let books = [];
 let currentState = null;
 
 async function api(path, options) {
-  const response = await fetch(path, options);
+  const response = await fetch(withToken(path), options);
   return response.json();
 }
 
@@ -66,7 +74,7 @@ function renderState(msg) {
 }
 
 function connect() {
-  const ws = new WebSocket(`ws://${location.host}/ws?role=panel`);
+  const ws = new WebSocket(withToken(`${WS_PROTO}//${location.host}/ws?role=panel`));
   ws.onmessage = (ev) => renderState(JSON.parse(ev.data));
   ws.onclose = () => setTimeout(connect, 1500);
 }
