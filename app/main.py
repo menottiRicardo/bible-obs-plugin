@@ -124,6 +124,9 @@ def create_app(bible: Bible | None = None, token: str | None = None) -> FastAPI:
 
     @app.websocket("/ws")
     async def websocket_endpoint(ws: WebSocket) -> None:
+        if not token_ok(ws.query_params.get("token")):
+            await ws.close(code=4401)
+            return
         role = ws.query_params.get("role", "panel")
         await ws.accept()
         manager.add(ws, role)

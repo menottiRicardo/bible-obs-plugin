@@ -1,5 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
+from starlette.websockets import WebSocketDisconnect
 
 from app.main import create_app
 
@@ -46,3 +47,20 @@ def test_without_configured_token_everything_stays_open(tiny_bible):
     open_client = TestClient(create_app(tiny_bible, token=""))
     assert open_client.get("/api/state").status_code == 200
     assert open_client.get("/").status_code == 200
+
+
+def test_ws_rejects_missing_token(client):
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect("/ws?role=overlay"):
+            pass
+
+
+def test_ws_rejects_wrong_token(client):
+    with pytest.raises(WebSocketDisconnect):
+        with client.websocket_connect("/ws?role=overlay&token=malo"):
+            pass
+
+
+def test_ws_accepts_valid_token(client):
+    with client.websocket_connect(f"/ws?role=overlay&token={TOKEN}") as ws:
+        assert ws.receive_json()["type"] == "state"
