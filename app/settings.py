@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     port: int = 8777
     data_path: Path = Path("data/rvr1960.json")
+    token: str = ""
 
 
 settings = Settings()

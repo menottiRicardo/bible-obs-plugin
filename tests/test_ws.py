@@ -6,7 +6,7 @@ from app.main import create_app
 
 @pytest.fixture
 def client(tiny_bible) -> TestClient:
-    return TestClient(create_app(tiny_bible))
+    return TestClient(create_app(tiny_bible, token=""))
 
 
 def test_overlay_receives_snapshot_on_connect(client):
