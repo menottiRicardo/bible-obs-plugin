@@ -34,6 +34,26 @@ servidor y abre el panel en el navegador.
 Desde un teléfono en la misma red: `http://<IP-de-la-Mac>:8777/`
 (la IP aparece al ejecutar `./start.sh`).
 
+## Desplegar en Railway (opcional)
+
+Para controlar el panel desde cualquier lugar, no solo la red local:
+
+1. Sube el repositorio a GitHub y crea un proyecto en [Railway](https://railway.app)
+   apuntando a ese repo. Railway detecta el `Dockerfile` automáticamente.
+2. En **Variables**, agrega `BIBLE_TOKEN` con un secreto largo
+   (por ejemplo, el resultado de `openssl rand -hex 16`).
+3. En **Settings → Networking**, genera un dominio público.
+4. Reemplaza `TU-APP` y `TU_TOKEN` en estas URLs:
+   - Panel: `https://TU-APP.up.railway.app/?token=TU_TOKEN`
+   - Overlay para OBS: `https://TU-APP.up.railway.app/overlay?token=TU_TOKEN`
+
+Sin `BIBLE_TOKEN` el servidor queda abierto a cualquiera: en Railway
+configúralo siempre. Si el token se filtra, cámbialo en **Variables** y
+actualiza las dos URLs. El uso local con `./start.sh` no cambia.
+
+Nota: el texto RVR1960 se descarga al construir la imagen y queda solo en tu
+registro privado de Railway; no se publica en el repositorio.
+
 ## Prueba manual antes del servicio
 
 1. `./start.sh` y overlay agregado en OBS.
