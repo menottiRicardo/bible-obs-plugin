@@ -11,11 +11,22 @@ class OverlayState:
         self._bible = bible
         self.ref: VerseRef = bible.first_ref()
         self.visible: bool = False
+        self.mode: str = "verse"
+        self.slide_text: str = ""
+        self.slide_caption: str = ""
 
     def set_verse(self, ref: VerseRef) -> None:
         self.ref = ref
+        self.mode = "verse"
+
+    def set_slide(self, text: str, caption: str = "") -> None:
+        self.mode = "slide"
+        self.slide_text = text
+        self.slide_caption = caption
+        self.visible = True
 
     def step(self, direction: int) -> bool:
+        self.mode = "verse"
         moved = (
             self._bible.next_ref(self.ref)
             if direction > 0
@@ -30,14 +41,17 @@ class OverlayState:
         self.visible = visible
 
     def snapshot(self) -> dict:
+        in_slide = self.mode == "slide"
         return {
             "type": "state",
+            "mode": self.mode,
             "visible": self.visible,
             "book_id": self.ref.book_id,
             "book_name": BY_ID[self.ref.book_id].name,
             "chapter": self.ref.chapter,
             "verse": self.ref.verse,
-            "text": self._bible.get_text(self.ref),
+            "text": self.slide_text if in_slide else self._bible.get_text(self.ref),
+            "caption": self.slide_caption if in_slide else "",
         }
 
 
