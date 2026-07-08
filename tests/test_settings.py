@@ -22,3 +22,13 @@ def test_token_defaults_empty(monkeypatch):
 def test_token_env_override(monkeypatch):
     monkeypatch.setenv("BIBLE_TOKEN", "abc123")
     assert Settings().token == "abc123"
+
+
+def test_slides_path_default(monkeypatch):
+    monkeypatch.delenv("BIBLE_SLIDES_PATH", raising=False)
+    assert Settings().slides_path == Path("data/slides.json")
+
+
+def test_slides_path_env_override(monkeypatch):
+    monkeypatch.setenv("BIBLE_SLIDES_PATH", "/data/slides.json")
+    assert Settings().slides_path == Path("/data/slides.json")
