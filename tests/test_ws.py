@@ -5,8 +5,10 @@ from app.main import create_app
 
 
 @pytest.fixture
-def client(tiny_bible) -> TestClient:
-    return TestClient(create_app(tiny_bible, token=""))
+def client(tiny_bible, tmp_path) -> TestClient:
+    return TestClient(
+        create_app(tiny_bible, token="", slides_path=tmp_path / "slides.json")
+    )
 
 
 def test_overlay_receives_snapshot_on_connect(client):

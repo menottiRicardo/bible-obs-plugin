@@ -8,8 +8,10 @@ TOKEN = "secreto-prueba"
 
 
 @pytest.fixture
-def client(tiny_bible) -> TestClient:
-    return TestClient(create_app(tiny_bible, token=TOKEN))
+def client(tiny_bible, tmp_path) -> TestClient:
+    return TestClient(
+        create_app(tiny_bible, token=TOKEN, slides_path=tmp_path / "slides.json")
+    )
 
 
 def test_api_rejects_missing_token(client):
@@ -43,8 +45,10 @@ def test_pages_accept_valid_token(client):
     assert client.get("/overlay?token=secreto-prueba").status_code == 200
 
 
-def test_without_configured_token_everything_stays_open(tiny_bible):
-    open_client = TestClient(create_app(tiny_bible, token=""))
+def test_without_configured_token_everything_stays_open(tiny_bible, tmp_path):
+    open_client = TestClient(
+        create_app(tiny_bible, token="", slides_path=tmp_path / "slides.json")
+    )
     assert open_client.get("/api/state").status_code == 200
     assert open_client.get("/").status_code == 200
 

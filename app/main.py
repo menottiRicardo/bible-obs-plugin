@@ -18,6 +18,7 @@ from pydantic import BaseModel
 from app import refparse
 from app.bible import Bible, BibleDataError, VerseRef
 from app.settings import settings
+from app.slides import SlideLibrary
 from app.state import ConnectionManager, OverlayState
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -44,7 +45,16 @@ class VisibilityPayload(BaseModel):
     visible: bool
 
 
-def create_app(bible: Bible | None = None, token: str | None = None) -> FastAPI:
+class SlidePayload(BaseModel):
+    text: str
+    caption: str = ""
+
+
+def create_app(
+    bible: Bible | None = None,
+    token: str | None = None,
+    slides_path: Path | None = None,
+) -> FastAPI:
     if bible is None:
         try:
             bible = Bible.load(settings.data_path)
@@ -55,6 +65,7 @@ def create_app(bible: Bible | None = None, token: str | None = None) -> FastAPI:
     app = FastAPI(title="bible-obs")
     state = OverlayState(bible)
     manager = ConnectionManager()
+    library = SlideLibrary(settings.slides_path if slides_path is None else slides_path)
 
     def token_ok(provided: str | None) -> bool:
         if not required_token:
@@ -107,6 +118,43 @@ def create_app(bible: Bible | None = None, token: str | None = None) -> FastAPI:
     async def set_visibility(payload: VisibilityPayload) -> dict:
         state.set_visible(payload.visible)
         return await push_state()
+
+    def clean_slide(payload: SlidePayload) -> tuple[str, str]:
+        text = payload.text.strip()
+        if not text:
+            raise HTTPException(status_code=422, detail="Texto vacío")
+        if len(text) > 500:
+            raise HTTPException(status_code=422, detail="Texto demasiado largo")
+        return text, payload.caption.strip()
+
+    @api.post("/slide")
+    async def show_slide(payload: SlidePayload) -> dict:
+        text, caption = clean_slide(payload)
+        state.set_slide(text, caption)
+        return await push_state()
+
+    @api.get("/slides")
+    def list_slides() -> list[dict]:
+        return library.list()
+
+    @api.post("/slides")
+    def create_slide(payload: SlidePayload) -> dict:
+        text, caption = clean_slide(payload)
+        return library.add(text, caption)
+
+    @api.put("/slides/{slide_id}")
+    def update_slide(slide_id: int, payload: SlidePayload) -> dict:
+        text, caption = clean_slide(payload)
+        updated = library.update(slide_id, text, caption)
+        if updated is None:
+            raise HTTPException(status_code=404, detail="No existe")
+        return updated
+
+    @api.delete("/slides/{slide_id}")
+    def delete_slide(slide_id: int) -> dict:
+        if not library.delete(slide_id):
+            raise HTTPException(status_code=404, detail="No existe")
+        return {"ok": True}
 
     @api.get("/search")
     def search(q: str = "") -> dict:
