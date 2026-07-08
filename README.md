@@ -29,6 +29,9 @@ servidor y abre el panel en el navegador.
 - **Buscar**: escribe `jn 3 16`, `1co 13:4` o `salmos 23` y pulsa **Ir**.
 - **← Anterior / Siguiente →**: avanza versículo por versículo.
 - **Mostrar / Ocultar**: enciende o apaga la franja sin perder la posición.
+- **Mensajes**: escribe un anuncio (con línea pequeña opcional) y pulsa
+  **Mostrar mensaje**, o guárdalo para reutilizarlo cada semana. Los botones
+  de versículo siempre vuelven a la Biblia, sin perder la posición.
 - Punto verde = overlay conectado en OBS; rojo = desconectado.
 
 Desde un teléfono en la misma red: `http://<IP-de-la-Mac>:8777/`
@@ -51,6 +54,11 @@ Sin `BIBLE_TOKEN` el servidor queda abierto a cualquiera: en Railway
 configúralo siempre. Si el token se filtra, cámbialo en **Variables** y
 actualiza las dos URLs. El uso local con `./start.sh` no cambia.
 
+Los mensajes guardados se escriben en `data/slides.json`. En Railway el disco
+se borra en cada deploy: para conservarlos, agrega un **Volume** montado en
+`/data` y define la variable `BIBLE_SLIDES_PATH=/data/slides.json`. No montes
+el volumen en `/app/data`: taparía la Biblia descargada dentro de la imagen.
+
 Nota: el texto RVR1960 se descarga al construir la imagen y queda solo en tu
 registro privado de Railway; no se publica en el repositorio.
 
@@ -60,7 +68,9 @@ registro privado de Railway; no se publica en el repositorio.
 2. Busca un versículo, pulsa **Mostrar**, verifica que se ve en OBS.
 3. **Siguiente** un par de veces; verifica el fundido entre versículos.
 4. **Ocultar**; verifica que la franja desaparece.
-5. Reinicia el servidor y refresca la fuente en OBS; todo debe reconectar.
+5. Escribe un mensaje en **Mensajes**, pulsa **Mostrar mensaje**; verifica que
+   se ve en OBS y que **Siguiente** regresa al versículo.
+6. Reinicia el servidor y refresca la fuente en OBS; todo debe reconectar.
 
 ## Nota sobre derechos
 
