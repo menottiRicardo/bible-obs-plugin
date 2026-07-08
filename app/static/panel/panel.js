@@ -16,12 +16,16 @@ async function api(path, options) {
   return response.json();
 }
 
-function postJSON(path, body) {
+function sendJSON(method, path, body) {
   return api(path, {
-    method: "POST",
+    method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body || {}),
   });
+}
+
+function postJSON(path, body) {
+  return sendJSON("POST", path, body);
 }
 
 function fillSelect(select, values, labels) {
@@ -60,7 +64,10 @@ function renderState(msg) {
   if (msg.type !== "state") return;
   currentState = msg;
   $("preview-text").textContent = msg.text;
-  $("preview-ref").textContent = `${msg.book_name} ${msg.chapter}:${msg.verse} (RVR1960)`;
+  $("preview-ref").textContent =
+    msg.mode === "slide"
+      ? msg.caption || "Mensaje"
+      : `${msg.book_name} ${msg.chapter}:${msg.verse} (RVR1960)`;
   $("preview-status").textContent = msg.visible ? "EN PANTALLA" : "Oculto";
   $("preview").classList.toggle("live", msg.visible);
   const toggle = $("toggle-btn");
@@ -71,6 +78,70 @@ function renderState(msg) {
   dot.classList.toggle("on", connected);
   dot.classList.toggle("off", !connected);
   dot.title = connected ? "Overlay conectado" : "Overlay desconectado";
+}
+
+let slides = [];
+let editingId = null;
+
+function slideForm() {
+  return {
+    text: $("slide-text").value.trim(),
+    caption: $("slide-caption").value.trim(),
+  };
+}
+
+function stopEditing() {
+  editingId = null;
+  $("slide-text").value = "";
+  $("slide-caption").value = "";
+  $("slide-save-btn").textContent = "Guardar";
+  $("slide-cancel-btn").classList.add("hidden");
+}
+
+function startEditing(slide) {
+  editingId = slide.id;
+  $("slide-text").value = slide.text;
+  $("slide-caption").value = slide.caption;
+  $("slide-save-btn").textContent = "Actualizar";
+  $("slide-cancel-btn").classList.remove("hidden");
+}
+
+async function deleteSlide(id) {
+  if (!confirm("¿Borrar este mensaje?")) return;
+  await api(`/api/slides/${id}`, { method: "DELETE" });
+  if (editingId === id) stopEditing();
+  await loadSlides();
+}
+
+function renderSlideList() {
+  const list = $("slide-list");
+  list.innerHTML = "";
+  slides.forEach((slide) => {
+    const li = document.createElement("li");
+    const label = document.createElement("span");
+    label.textContent = slide.caption ? `${slide.text} — ${slide.caption}` : slide.text;
+    li.appendChild(label);
+    const actions = document.createElement("div");
+    const buttons = [
+      ["Mostrar", () => postJSON("/api/slide", { text: slide.text, caption: slide.caption })],
+      ["Editar", () => startEditing(slide)],
+      ["Borrar", () => deleteSlide(slide.id)],
+    ];
+    buttons.forEach(([name, handler]) => {
+      const btn = document.createElement("button");
+      btn.textContent = name;
+      if (name === "Borrar") btn.classList.add("danger");
+      btn.onclick = handler;
+      actions.appendChild(btn);
+    });
+    li.appendChild(actions);
+    list.appendChild(li);
+  });
+}
+
+async function loadSlides() {
+  slides = await api("/api/slides");
+  renderSlideList();
 }
 
 function connect() {
@@ -115,6 +186,28 @@ async function init() {
     });
     $("search-input").select();
   };
+
+  $("slide-show-btn").onclick = () => {
+    const payload = slideForm();
+    if (!payload.text) return;
+    postJSON("/api/slide", payload);
+  };
+
+  $("slide-save-btn").onclick = async () => {
+    const payload = slideForm();
+    if (!payload.text) return;
+    if (editingId === null) {
+      await postJSON("/api/slides", payload);
+    } else {
+      await sendJSON("PUT", `/api/slides/${editingId}`, payload);
+    }
+    stopEditing();
+    await loadSlides();
+  };
+
+  $("slide-cancel-btn").onclick = stopEditing;
+
+  await loadSlides();
 
   connect();
 }

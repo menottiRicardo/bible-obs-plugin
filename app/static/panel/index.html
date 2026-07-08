@@ -36,6 +36,18 @@
     <button id="toggle-btn">Mostrar</button>
     <button id="next-btn">Siguiente →</button>
   </div>
+
+  <section id="messages">
+    <h2>Mensajes</h2>
+    <textarea id="slide-text" rows="3" placeholder="Texto del mensaje…" aria-label="Texto del mensaje"></textarea>
+    <input id="slide-caption" type="text" placeholder="Línea pequeña (opcional)" aria-label="Línea pequeña">
+    <div id="slide-actions">
+      <button id="slide-show-btn">Mostrar mensaje</button>
+      <button id="slide-save-btn" class="secondary">Guardar</button>
+      <button id="slide-cancel-btn" class="secondary hidden">Cancelar</button>
+    </div>
+    <ul id="slide-list"></ul>
+  </section>
 </main>
 <script src="/static/panel/panel.js"></script>
 </body>

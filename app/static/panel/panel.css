@@ -106,3 +106,60 @@ button:active { background: #1e4fa8; }
 
 #toggle-btn { background: #27ae60; }
 #toggle-btn.showing { background: #c0392b; }
+
+#messages { display: flex; flex-direction: column; gap: 0.5rem; }
+
+#messages h2 {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fa1bf;
+}
+
+#slide-text, #slide-caption {
+  width: 100%;
+  font-size: 1.05rem;
+  font-family: inherit;
+  padding: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #39445a;
+  background: #1c2333;
+  color: inherit;
+  resize: vertical;
+}
+
+#slide-actions { display: flex; gap: 0.5rem; }
+#slide-actions button { flex: 1; }
+button.secondary { background: #39445a; }
+button.danger { background: #c0392b; }
+
+#slide-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+#slide-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: #171d29;
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+}
+
+#slide-list span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#slide-list div { display: flex; gap: 0.3rem; }
+
+#slide-list button { font-size: 0.85rem; padding: 0.4rem 0.6rem; }

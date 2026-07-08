@@ -11,7 +11,13 @@
 
   function apply(msg) {
     textEl.textContent = msg.text;
-    refEl.textContent = `${msg.book_name} ${msg.chapter}:${msg.verse} (RVR1960)`;
+    if (msg.mode === "slide") {
+      refEl.textContent = msg.caption;
+      refEl.style.display = msg.caption ? "" : "none";
+    } else {
+      refEl.textContent = `${msg.book_name} ${msg.chapter}:${msg.verse} (RVR1960)`;
+      refEl.style.display = "";
+    }
     box.classList.remove("len-lg", "len-xl");
     if (msg.text.length > 320) box.classList.add("len-xl");
     else if (msg.text.length > 200) box.classList.add("len-lg");
@@ -19,7 +25,10 @@
 
   function render(msg) {
     if (msg.type !== "state") return;
-    const key = `${msg.book_id}:${msg.chapter}:${msg.verse}`;
+    const key =
+      msg.mode === "slide"
+        ? `s:${msg.text}|${msg.caption}`
+        : `v:${msg.book_id}:${msg.chapter}:${msg.verse}`;
     if (pending) { clearTimeout(pending); pending = null; }
 
     if (!msg.visible) {
